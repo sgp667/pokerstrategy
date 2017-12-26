@@ -6,18 +6,7 @@ def test_CardDeck_exists():
     assert type(cardeck) == deck.CardDeck
 
 
-# Test that decks always have teh right amount of cards even after you draw a card
-def test_singe_CardDeck_has_52_cards():
-    cardeck = deck.CardDeck()
-    assert len(cardeck.cards) == 52
-    assert cardeck.count      == 52
-
-def test_two_CardDeck_has_x_cards():
-    cardeck = deck.CardDeck(2)
-    assert len(cardeck.cards) == 104
-    assert cardeck.count      == 104
-    
-
+# Test that decks always have the right amount of cards even after you draw a card
 @pytest.mark.parametrize("init_decks,draws,expected",[
     (1,0,52),
     (2,0,104),
@@ -34,5 +23,30 @@ def test_CardDeck_has_x_cards(init_decks,draws,expected):
     assert len(cardeck.cards) == expected
     assert cardeck.count      == expected
     assert len(drawncards)    == draws
+
+
+def test_empty_CardDeck_throws_an_error_on_draw():
+    cardeck = deck.CardDeck()
     
-# TODO Write a test case where CardDeck trows an error if you try to draw a card after all cards have been drawn
+    while cardeck.count > 0:
+        cardeck.draw()
+    
+    with pytest.raises(IndexError) as execinfo:
+        drawn_card = cardeck.draw()
+    
+    assert "empty deck" in str(execinfo) 
+    
+    with pytest.raises(UnboundLocalError) as execinfo:
+        drawn_card 
+    
+    assert "UnboundLocalError" in str(execinfo) 
+
+
+# Test that deck can return correct cards
+def test_CardDeck_can_return_random_card():
+    cardeck = deck.CardDeck()
+    
+    topcard   = cardeck.cards[0]
+    drawncard = cardeck.draw_random()
+    assert "tuple" in str(type(drawncard))
+    assert topcard[0] != drawncard[0] or topcard[1] != drawncard[1]
