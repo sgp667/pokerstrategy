@@ -7,8 +7,11 @@ __suites__ = ["Clubs","Diamods","Hearts","Spades"]
 
 class Card():
     def __init__(self,suite,rank):
-        self.suite = suite
-        self.rank = rank
+        if suite in __suites__ and rank in __ranks__:
+            self.suite = suite
+            self.rank = rank
+        else:
+            raise ValueError("Cards need to be instansiated with names from __ranks__ and __suites")
     
     def __str__(self):
         return "'" + str(self.rank) + " of " + self.suite + "'"
@@ -17,16 +20,16 @@ class Card():
         return "<" + self.__str__() + ">"
 
     def __gt__(self,other):
-        return self._compare_cards_(other,1)
-
-    def __lt__(self,other):
         return self._compare_cards_(other,-1)
 
+    def __lt__(self,other):
+        return self._compare_cards_(other,1)
+
     def __ge__(self,other):
-        return self._compare_cards_(other,1) or self.__eq__(other)
+        return self._compare_cards_(other,-1) or self.__eq__(other)
 
     def __le__(self,other):
-        return self._compare_cards_(other,-1) or self.__eq__(other)
+        return self._compare_cards_(other,1) or self.__eq__(other)
 
     def __eq__(self,other):
         return self._compare_cards_(other,0)
@@ -55,22 +58,3 @@ class Card():
             return 0
         if attr_list.index(attr1) > attr_list.index(attr2):
             return 1
-
-
-class CardDeck:
-    def __init__(self,decks = 1):
-        self.cards  = [(suite, rank) for suite in suites for rank in ranks for x in range(0,decks)]
-        self.count  = len(self.cards)
-        
-    def draw(self, index = 0):
-        try:
-            drawn_card = self.cards.pop(index)
-            self.count = len(self.cards)
-            return drawn_card
-        except IndexError:
-            #print(,sys.exc_info()[0])
-            raise IndexError("Cannot draw card from an already empty deck")
-            
-    def draw_random(self):
-        drawn_index = rnd.randrange(0,self.count-1,1)
-        return self.draw(drawn_index)
