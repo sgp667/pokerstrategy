@@ -13,6 +13,15 @@ class Card():
         else:
             raise ValueError("Cards need to be instansiated with names from __ranks__ and __suites")
     
+    @property
+    def rank_index(self):
+        return __ranks__.index(self.rank)
+
+    def is_consecutive(self,other,same_suite=False):
+        if same_suite and self.suite != other.suite:
+               return False 
+        return self.rank_index + 1 == other.rank_index
+
     def __str__(self):
         return "'" + str(self.rank) + " of " + self.suite + "'"
 
