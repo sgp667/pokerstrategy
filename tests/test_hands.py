@@ -2,33 +2,50 @@ import pytest
 from pokerstrategy.game.deck import Card
 import pokerstrategy.game.hands as hands
 
-@pytest.mark.parametrize(['cards','rank','expected'],[
-    ([Card('Spades',2),Card('Hearts',2)],2,2),
-    ([Card('Spades',3),Card('Hearts',3)],2,0)
-])
-def test_can_count_ranks(cards,rank,expected):
-    cardset = hands.CardSet(cards)
-    assert len(cardset.rank(rank)) == expected
+@pytest.fixture()
+def cardset():
+    cards = [Card.code('S2'),Card.code('H2'),Card.code("H3")]
+    return hands.CardSet(cards)
 
-@pytest.mark.parametrize(['cards','suite','expected'],[
-    ([Card('Spades',2),Card('Spades',3)],"Spades",2),
-    ([Card('Spades',3),Card('Hearts',3)],"Hearts",1)
-])
-def test_can_count_suites(cards,suite,expected):
-    cardset = hands.CardSet(cards)
-    assert len(cardset.suite(suite)) == expected
+def test_can_build_cardset():
+    string = hands.CardSet("H2C3")
+    cardlist = hands.CardSet([Card.code('H2'),Card.code("C3")])
 
-@pytest.mark.parametrize(['cards','suite','expected'],[
-    ([Card('Spades',2),Card('Spades',3)],"Spades",2),
-    ([Card('Spades',3),Card('Hearts',3)],"Hearts",1)
-])
-def test_can_count_suites(cards,suite,expected):
-    cardset = hands.CardSet(cards)
-    assert len(cardset.suite(suite)) == expected
+def test_can_list_ranks(cardset):
+    assert cardset.ranks() == ["2","3"]
 
+def test_can_list_suits(cardset):
+    assert cardset.suits() == ["Hearts","Spades"]
 
-def test_can_build_hand_from_cardset():
-    cards = [Card('Spades',2),Card('Spades',3)]
+@pytest.mark.parametrize(["rank","count"],
+        [("2",2),("3",1),("4",0),(2,2)])
+def test_can_count_ranks(cardset,rank,count):
+    assert len(cardset.rank(rank)) == count
+
+@pytest.mark.parametrize(["suit","count"],
+        [("Hearts",2),("Spades",1),("Clubs",0)])
+def test_can_count_suits(cardset,suit,count):
+    assert len(cardset.suit(suit)) == count
+
+def test_can_count_consecutive_cards(cardset):
+    consecutive_cards = cardset.consecutive(1)
+    assert len(consecutive_cards) == 3
+    assert len(consecutive_cards[0]) == 2
+
+def test_can_build_hand():
+    cards = [Card.code('S2'),Card.code('S3')]
     cardset = hands.CardSet(cards)
     hand = cardset.hand()
     assert type(hand) is hands.HighcardHand
+
+def test_can_build_pair():
+    cards = [Card.code('S2'),Card.code('H2')]
+    cardset = hands.CardSet(cards)
+    hand = cardset.hand()
+    assert type(hand) is hands.PairHand
+
+def test_can_build_threeofkind():
+    cards = [Card.code('S2'),Card.code('H2'),Card.code('C2')]
+    cardset = hands.CardSet(cards)
+    hand = cardset.hand()
+    assert type(hand) is hands.ThreeHand
